@@ -64,4 +64,23 @@ export const getDishById = catchAsyncErrors(async (req, res, next) => {
         dish
     })
 });
-
+// @desc Update a dish
+export const updateDish = catchAsyncErrors(async (req, res, next) => {
+    const { dishId } = req.params;
+    let dish = await Dishes.findById(dishId);
+    if (!dish) {
+        res.status(404).json({
+            success: false,
+            message: "Dish not found"
+        });
+    }
+    dish = await Dishes.findByIdAndUpdate(dishId, req.body, {
+        new: true,
+        runValidators: true,
+    });
+    res.status(200).json({
+        success: true,
+        message: "Dish Updated successfully!!",
+        dish
+    });
+});
