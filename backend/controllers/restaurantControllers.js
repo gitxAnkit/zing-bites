@@ -11,8 +11,8 @@ export const getAllRestaurants = catchAsyncErrors(async (req, res, next) => {
     });
 });
 export const getRestaurantById = catchAsyncErrors(async (req, res, next) => {
-    const { restaurantId } = req.params.restaurantId;
-    const restaurant = Restaurant.findById(restaurantId);
+    const { restaurantId } = req.params;
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
         res.status(404).json({
             success: false,

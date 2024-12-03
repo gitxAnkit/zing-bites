@@ -1,5 +1,5 @@
 import express from 'express';
-import { addRestaurant, deleteRestaurant, getAllRestaurants } from '../controllers/restaurantControllers.js';
+import { addRestaurant, deleteRestaurant, getAllRestaurants, getRestaurantById } from '../controllers/restaurantControllers.js';
 
 const router = express.Router();
 
@@ -9,7 +9,8 @@ router.route("/restaurant")
     .post(addRestaurant);
 
 router.route("/restaurant/:restaurantId")
-    .delete(deleteRestaurant);
+    .delete(deleteRestaurant)
+    .get(getRestaurantById);
 
 
 export default router;
