@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 
-const dishModel = mongoose.Schema({
+const dishModel = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Enter dish name"]
     },
     description: {
         type: String,
+        required: [true, "Enter description of dish"]
     },
     rating: {
         type: Number,
@@ -33,10 +34,7 @@ const dishModel = mongoose.Schema({
         ref: "Restaurants",
         required: true,
     },
-    restaurantName: {
-        type: String,
-        required: [true, "Restaurant name is required"],
-    }
+
 
 });
 

@@ -4,7 +4,7 @@ import catchAsyncErrors from '../utils/catchAsyncErrors.js';
 
 // @desc Get All dishes
 export const getDishes = catchAsyncErrors(async (req, res, next) => {
-    const dishes = await Dishes.find();
+    const dishes = await Dishes.find().populate("restaurant");
 
     res.status(200).json({
         success: true,
@@ -15,15 +15,24 @@ export const getDishes = catchAsyncErrors(async (req, res, next) => {
 // @desc Add new dish
 export const createDish = catchAsyncErrors(async (req, res, next) => {
     const { restaurantId } = req.params;
-    const { dishName, description, price } = req.body;
-    const restaurnt = await Restaurant.findById(restaurantId);
-    console.log("Restaurant: ", restaurnt);
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+        return res.status(404).json({
+            success: false,
+            message: "Restaurant not found.",
+        });
+    }
+    const { name, price } = req.body;
+    if (!name || !price) {
+        return res.status(400).json({
+            success: false,
+            message: "Dish name and price are required.",
+        });
+    }
     const dish = await Dishes.create({
-        name: dishName,
-        description,
-        price,
+        ...req.body,
         restaurant: restaurantId,
-        restaurantName: restaurnt.name,
     });
     res.status(201).json({
         success: true,
@@ -43,7 +52,6 @@ export const removeDish = catchAsyncErrors(async (req, res, next) => {
         });
     }
     await Dishes.findByIdAndDelete(dishId);
-    console.log("Response: ", response);
     res.status(200).json({
         success: true,
         message: "Dish removed successfully!!"
@@ -52,7 +60,7 @@ export const removeDish = catchAsyncErrors(async (req, res, next) => {
 //@desc Get a dsih
 export const getDishById = catchAsyncErrors(async (req, res, next) => {
     const { dishId } = req.params;
-    const dish = await Dishes.findById(dishId);
+    const dish = await Dishes.findById(dishId).populate("restaurant");
     if (!dish) {
         res.status(404).json({
             success: false,

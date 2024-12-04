@@ -8,6 +8,6 @@ router.route("/dishes").get(getDishes);
 router.route("/dish/:dishId")
     .get(getDishById)
     .delete(removeDish)
-    .post(updateDish);
+    .put(updateDish);
 
 export default router;

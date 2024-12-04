@@ -11,7 +11,7 @@ router.route("/restaurant")
 router.route("/restaurant/:restaurantId")
     .delete(deleteRestaurant)
     .get(getRestaurantById)
-    .post(updateRestaurant);
+    .put(updateRestaurant);
 
 
 export default router;
