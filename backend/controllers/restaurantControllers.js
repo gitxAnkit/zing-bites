@@ -1,15 +1,27 @@
 import Restaurant from "../models/restaurantModel.js";
+import { ApiFeatures } from "../utils/apiFeatures.js";
 import catchAsyncErrors from "../utils/catchAsyncErrors.js";
 
 export const getAllRestaurants = catchAsyncErrors(async (req, res, next) => {
-    const restaurants = await Restaurant.find();
+
+    const resultPerPage = 10;
+    const totalRestaurants = await Restaurant.countDocuments();
+
+    const apiFeatures = new ApiFeatures(Restaurant.find(), req.query)
+        .search()
+        .filter()
+        .pagination(resultPerPage);
+
+    const restaurants = await apiFeatures.query;
 
     res.status(200).json({
         success: true,
+        totalRestaurants: totalRestaurants,
         count: restaurants.length,
         restaurants
     });
 });
+
 export const getRestaurantById = catchAsyncErrors(async (req, res, next) => {
     const { restaurantId } = req.params;
     const restaurant = await Restaurant.findById(restaurantId);

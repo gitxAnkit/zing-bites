@@ -1,13 +1,25 @@
 import Dishes from '../models/dishModel.js';
 import Restaurant from '../models/restaurantModel.js';
+import { ApiFeatures } from '../utils/apiFeatures.js';
 import catchAsyncErrors from '../utils/catchAsyncErrors.js';
 
 // @desc Get All dishes
 export const getDishes = catchAsyncErrors(async (req, res, next) => {
-    const dishes = await Dishes.find().populate("restaurant");
+    const resultPerPage = 10;
+    const totalDishesCount = await Dishes.countDocuments();
+
+    const apiFeatures = new ApiFeatures(Dishes.find().populate("restaurant"), req.query)
+        .search()
+        .filter()
+        .pagination(resultPerPage);
+
+    const dishes = await apiFeatures.query;
 
     res.status(200).json({
         success: true,
+        totalDishesCount,
+        resultPerPage,
+        count: dishes.length,
         dishes
     });
 });
