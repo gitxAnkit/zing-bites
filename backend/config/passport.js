@@ -4,7 +4,6 @@ import User from "../models/userModel.js";
 
 // import dotenv from 'dotenv';
 // dotenv.config({ path: "../config/.env" });
-console.log("GCI: ", process.env.GOOGLE_CLIENT_SECRET);
 
 passport.use(
 

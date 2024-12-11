@@ -58,13 +58,11 @@ export const updateRestaurant = catchAsyncErrors(async (req, res, next) => {
 
 });
 
-
 // --Admin
 export const addRestaurant = catchAsyncErrors(async (req, res, next) => {
     const { name, address } = req.body;
 
     const restaurant = await Restaurant.create({ name, address });
-    console.log("Restaurant added successfully: ", restaurant);
     res.status(201).json({
         success: true,
         restaurant

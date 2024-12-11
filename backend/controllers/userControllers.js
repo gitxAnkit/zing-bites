@@ -2,14 +2,41 @@ import catchAsyncErrors from "../utils/catchAsyncErrors.js";
 import User from "../models/userModel.js";
 import { sendToken } from "../utils/jwtToken.js";
 import { ErrorHandler } from "../utils/errorHandler.js";
+import cloudinary from "../config/cloudinary.js";
 
+// @desc Register New User
+// POST /auth/register 
 export const registerUser = catchAsyncErrors(async (req, res, next) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, avatar } = req.body;
+    // Correct avatar, after making frontend
 
-    const user = await User.create({ name, email, password });
+    let userAvatar = { public_id: null, url: null };
+    if (avatar) {
+        try {
+            const uploadResult = await cloudinary.uploader.upload(avatar, {
+                folder: "zing-bites/users",
+                crop: "scale",
+                width: 150,
+            });
+            userAvatar = {
+                public_id: uploadResult.public_id,
+                url: uploadResult.secure_url,
+            };
+        } catch (error) {
+            console.log("Upload error: ", error);
+            return next(new ErrorHandler("Avatar upload failed", 500));
+        }
+    }
+
+    const user = await User.create({
+        name, email, password,
+        avatar: userAvatar
+    });
     sendToken(user, 201, res);
 });
 
+// @desc Login User
+// POST /login
 export const loginUser = catchAsyncErrors(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -25,10 +52,25 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
     }
     sendToken(user, 200, res);
 })
+
+// @desc Get User Details
+// GET /profile
+export const userDetails = catchAsyncErrors(async (req, res, next) => {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return new ErrorHandler("User not found", 404);
+    }
+    res.status(200).json({
+        success: true,
+        user
+    })
+})
+// @desc Callback func for google authentication 
 export const googleAuthCallback = catchAsyncErrors(async (req, res, next) => {
     const user = req.user; // Retrieved by Passport
 
-    console.log("Session:: ", process.env.SESSION_SECRET);
     if (!user) {
         return res.status(400).json({
             success: false,
@@ -39,7 +81,8 @@ export const googleAuthCallback = catchAsyncErrors(async (req, res, next) => {
     // Send the token and user data
     sendToken(user, 200, res);
 });
-
+// @desc Logout User
+// GET /logout
 export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     res.cookie("token", null, {
         expires: new Date(Date.now()),
@@ -51,7 +94,8 @@ export const logoutUser = catchAsyncErrors(async (req, res, next) => {
     });
 
 })
-
+// @desc Get all users
+// GET /admin/users
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
     const user = await User.find();
 
@@ -60,3 +104,19 @@ export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
         user
     })
 });
+
+// @desc Remove user
+// DELETE /admin/user/:userId
+export const removeUser = catchAsyncErrors(async (req, res, next) => {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return new ErrorHandler("User not found", 404);
+    }
+    await User.findByIdAndDelete(userId);
+    res.status(200).json({
+        success: true,
+        message: "User removed successfully!"
+    });
+})
