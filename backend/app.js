@@ -15,7 +15,7 @@ import passportMiddleware from './config/passport.js';
 import restaurantRoutes from './routes/restaurantRoutes.js';
 import dishesRoutes from './routes/dishRoutes.js';
 import userRoutes from "./routes/userRoutes.js";
-
+import orderRoutes from './routes/orderRoutes.js';
 const app = express();
 
 // Database connection
@@ -43,6 +43,7 @@ app.use(passportMiddleware.session());
 app.use("/api/v1", restaurantRoutes);
 app.use("/api/v1", dishesRoutes);
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", orderRoutes);
 
 // Error middleware
 app.use(errorMiddleware);

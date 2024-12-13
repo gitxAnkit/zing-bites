@@ -10,6 +10,17 @@ const restaurantSchema = new mongoose.Schema({
         required: [true, "Enter restaurant address"],
         minLength: [8, "Address should contain atleast 8 characters"]
     },
+    location: {
+        type: {
+            type: String, // GeoJSON type
+            enum: ["Point"], // Only allow "Point"
+            required: true
+        },
+        coordinates: {
+            type: [Number], // Array of numbers: [longitude, latitude]
+            required: true
+        }
+    },
     rating: {
         type: Number,
         default: 0,
@@ -21,5 +32,7 @@ const restaurantSchema = new mongoose.Schema({
         default: Date.now,
     }
 })
+// Geospatial index for the `location` field
+restaurantSchema.index({ location: "2dsphere" });
 
 export default mongoose.model('Restaurants', restaurantSchema);

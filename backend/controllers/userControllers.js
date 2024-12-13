@@ -48,11 +48,77 @@ export const loginUser = catchAsyncErrors(async (req, res, next) => {
     }
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) {
-        return new ErrorHandler("Invalid email or password.", 401);
+        return next(new ErrorHandler("Invalid email or password.", 401));
     }
     sendToken(user, 200, res);
 })
+// @desc Update addresses
+// PUT /addresses
+export const updateAddress = catchAsyncErrors(async (req, res, next) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new ErrorHandler("User not found!", 404));
+    }
+    const { address, coordinates } = req.body;
+    // Ensure coordinates are provided in the correct format: [longitude, latitude]
+    if (!coordinates || coordinates.length !== 2) {
+        return next(new ErrorHandler("Invalid coordinates format", 400));
+    }
+    const newAddress = {
+        address,
+        location: {
+            type: "Point",
+            coordinates: [coordinates[1], coordinates[0]] // Coordinates: [longitude, latitude]
+        }
+    }
+    user.addresses.push(newAddress);
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "Address updated successfully!"
+    })
+})
 
+// @desc Remove address
+// DELETE /addresses
+export const removeAddress = catchAsyncErrors(async (req, res, next) => {
+    const userId = req.user.id;
+    const { addressId } = req.params;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return next(new ErrorHandler("User not found!", 404));
+    }
+    await User.updateOne(
+        { _id: userId },
+        { $pull: { addresses: { _id: addressId } } }
+    );
+
+    res.status(200).json({
+        success: true,
+        message: "Address removed successfully!"
+    });
+})
+// @desc Set default address
+// PUT /addresses/default/:addressId
+export const setDefaultAddress = catchAsyncErrors(async (req, res, next) => {
+    const userId = req.user.id;
+    const addressId = req.params.addressId;
+    const user = await User.findById(userId);
+    if (!user) {
+        return next(new ErrorHandler("User not found!", 404));
+    }
+    const address = user.addresses.find(
+        (addr) => addr._id.toString() === addressId
+    );
+    user.defaultAddress = address;
+    await user.save();
+    res.status(200).json({
+        success: true,
+        message: "Default address set successfully!",
+    });
+});
 // @desc Get User Details
 // GET /profile
 export const userDetails = catchAsyncErrors(async (req, res, next) => {
@@ -60,8 +126,9 @@ export const userDetails = catchAsyncErrors(async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-        return new ErrorHandler("User not found", 404);
+        return next(new ErrorHandler("User not found", 404));
     }
+
     res.status(200).json({
         success: true,
         user
@@ -72,10 +139,7 @@ export const googleAuthCallback = catchAsyncErrors(async (req, res, next) => {
     const user = req.user; // Retrieved by Passport
 
     if (!user) {
-        return res.status(400).json({
-            success: false,
-            message: "Authentication failed.",
-        });
+        return next(new ErrorHandler("Auhtentication failed", 400));
     }
 
     // Send the token and user data
@@ -112,7 +176,7 @@ export const removeUser = catchAsyncErrors(async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-        return new ErrorHandler("User not found", 404);
+        return next(new ErrorHandler("User not found", 404));
     }
     await User.findByIdAndDelete(userId);
     res.status(200).json({

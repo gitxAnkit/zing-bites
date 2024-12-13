@@ -2,6 +2,7 @@ import Dishes from '../models/dishModel.js';
 import Restaurant from '../models/restaurantModel.js';
 import { ApiFeatures } from '../utils/apiFeatures.js';
 import catchAsyncErrors from '../utils/catchAsyncErrors.js';
+import { ErrorHandler } from '../utils/errorHandler.js';
 
 // @desc Get All dishes
 export const getDishes = catchAsyncErrors(async (req, res, next) => {
@@ -30,17 +31,11 @@ export const createDish = catchAsyncErrors(async (req, res, next) => {
     const restaurant = await Restaurant.findById(restaurantId);
 
     if (!restaurant) {
-        return res.status(404).json({
-            success: false,
-            message: "Restaurant not found.",
-        });
+        return next(new ErrorHandler("Restaurant not found.", 404));
     }
     const { name, price } = req.body;
     if (!name || !price) {
-        return res.status(400).json({
-            success: false,
-            message: "Dish name and price are required.",
-        });
+        return next(new ErrorHandler("Dish name and price is required.", 400));
     }
     const dish = await Dishes.create({
         ...req.body,
@@ -58,10 +53,7 @@ export const removeDish = catchAsyncErrors(async (req, res, next) => {
     const { dishId } = req.params;
     const dish = Dishes.findById(dishId);
     if (!dish) {
-        res.status(404).json({
-            success: false,
-            message: "Dish not found!!",
-        });
+        return next(new ErrorHandler("Dish not found", 404));
     }
     await Dishes.findByIdAndDelete(dishId);
     res.status(200).json({
@@ -74,10 +66,7 @@ export const getDishById = catchAsyncErrors(async (req, res, next) => {
     const { dishId } = req.params;
     const dish = await Dishes.findById(dishId).populate("restaurant");
     if (!dish) {
-        res.status(404).json({
-            success: false,
-            message: "Dish not found!!",
-        });
+        return next(new ErrorHandler("Dish not found", 404));
     }
     res.status(200).json({
         success: true,
@@ -89,10 +78,7 @@ export const updateDish = catchAsyncErrors(async (req, res, next) => {
     const { dishId } = req.params;
     let dish = await Dishes.findById(dishId);
     if (!dish) {
-        res.status(404).json({
-            success: false,
-            message: "Dish not found"
-        });
+        return next(new ErrorHandler("Dish not found.", 404));
     }
     dish = await Dishes.findByIdAndUpdate(dishId, req.body, {
         new: true,
@@ -104,3 +90,16 @@ export const updateDish = catchAsyncErrors(async (req, res, next) => {
         dish
     });
 });
+// @desc Get all dishes of a restaurant
+export const getDishesByRestaurant = catchAsyncErrors(async (req, res, next) => {
+    const { restaurantId } = req.params;
+    const dishes = await Dishes.find({ restaurant: restaurantId }).populate("restaurant");
+    if (!dishes) {
+        return next(new ErrorHandler("No dishes found.", 404));
+    }
+    res.status(200).json({
+        success: true,
+        dishes
+    });
+
+})

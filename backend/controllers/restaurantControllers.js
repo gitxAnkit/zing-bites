@@ -1,4 +1,5 @@
 import Restaurant from "../models/restaurantModel.js";
+import User from "../models/userModel.js";
 import { ApiFeatures } from "../utils/apiFeatures.js";
 import catchAsyncErrors from "../utils/catchAsyncErrors.js";
 
@@ -37,6 +38,37 @@ export const getRestaurantById = catchAsyncErrors(async (req, res, next) => {
     })
 });
 
+// @desc Get Nearby Restaurants
+// GET /restaurants/nearby
+export const getNearbyRestaurants = catchAsyncErrors(async (req, res, next) => {
+    const userId = req.user.id; // Assume `req.user` contains authenticated user data
+
+    // Fetch the user and populate the defaultAddress
+    const user = await User.findById(userId);
+    if (!user || !user.defaultAddress) {
+        return next(new ErrorHandler("Default address not set for the user", 400));
+    }
+    console.log(user.defaultAddress);
+    const { coordinates } = user.defaultAddress.location;
+    const maxDistanceInMeters = 5000; // Set the radius, e.g., 5 km
+
+    // Find nearby restaurants using the default address coordinates
+    const restaurants = await Restaurant.aggregate([
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates }, // Use user's default address coordinates
+                distanceField: "distance",
+                maxDistance: maxDistanceInMeters,
+                spherical: true,
+            },
+        },
+    ]);
+
+    res.status(200).json({
+        success: true,
+        restaurants,
+    });
+});
 export const updateRestaurant = catchAsyncErrors(async (req, res, next) => {
     const { restaurantId } = req.params;
 
@@ -58,15 +90,29 @@ export const updateRestaurant = catchAsyncErrors(async (req, res, next) => {
 
 });
 
+
 // --Admin
 export const addRestaurant = catchAsyncErrors(async (req, res, next) => {
-    const { name, address } = req.body;
+    const { name, address, latitude, longitude, rating } = req.body;
 
-    const restaurant = await Restaurant.create({ name, address });
+    if (!latitude || !longitude) {
+        return next(new ErrorHandler("Coordinates (latitude and longitude) are required.", 400));
+    }
+
+    const restaurant = await Restaurant.create({
+        name,
+        address,
+        location: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+        },
+        rating: rating || 0,
+    });
+
     res.status(201).json({
         success: true,
         restaurant
-    })
+    });
 });
 // --admin
 export const deleteRestaurant = catchAsyncErrors(async (req, res, next) => {

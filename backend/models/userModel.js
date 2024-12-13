@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
+        required: [true, "Enter your password."],
         minLength: [8, "Password should be greater than 8 characters"],
         select: false,
     },
@@ -29,14 +30,52 @@ const userSchema = new mongoose.Schema({
             // required: true,
         },
     },
+    addresses: [
+        {
+            address: {
+                type: String,
+                required: [true, "Enter your address"],
+                minLength: [8, "Address should contain at least 8 characters"],
+            },
+            location: {
+                type: {
+                    type: String,
+                    enum: ["Point"], // GeoJSON type for location
+                    default: "Point",
+                },
+                coordinates: {
+                    type: [Number], // Array of [longitude, latitude]
+                    required: [true, "Enter location coordinates"],
+                },
+            },
+        },
+    ],
+    defaultAddress: {
+        address: {
+            type: String,
+            required: [true, "Enter your address"],
+            minLength: [8, "Address should contain at least 8 characters"],
+        },
+        location: {
+            type: {
+                type: String,
+                enum: ["Point"], // GeoJSON type for location
+                default: "Point",
+            },
+            coordinates: {
+                type: [Number], // Array of [longitude, latitude]
+                required: [true, "Enter location coordinates"],
+            },
+        },
+    },
     googleId: {
-        type: String, // For Google Sign-In users, storing Google unique ID
-        unique: true, // Ensures no duplicate accounts
+        type: String, // For Google Sign-In users
+        unique: true,
         sparse: true, // Allows multiple manual users with `null` Google IDs
     },
     role: {
         type: String,
-        enum: ["user", "admin"], // Restricts role values
+        enum: ["user", "admin"],
         default: "user",
     },
     createdAt: {
@@ -46,8 +85,10 @@ const userSchema = new mongoose.Schema({
     resetPasswordToken: String,
     resetPasswordExpire: Date,
 });
+
 // Adding Index for Better Performance (optional but recommended)
 userSchema.index({ email: 1 });
+
 // Pre-save middleware to hash passwords before saving to the database
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
