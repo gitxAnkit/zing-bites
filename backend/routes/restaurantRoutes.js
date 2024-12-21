@@ -9,7 +9,7 @@ router.route("/restaurants")
 router.route("/restaurant")
     .post(isAuthenticatedUser, authorizedRoles("admin"), addRestaurant);
 
-router.route("/restaurant/nearby").get(isAuthenticatedUser, authorizedRoles("user"), getNearbyRestaurants);
+router.route("/restaurant/nearby").get(isAuthenticatedUser, getNearbyRestaurants);
 router.route("/restaurant/:restaurantId")
     .delete(isAuthenticatedUser, authorizedRoles("admin"), deleteRestaurant)
     .get(isAuthenticatedUser, authorizedRoles("admin"), getRestaurantById)

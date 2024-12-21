@@ -23,7 +23,6 @@ export const registerUser = catchAsyncErrors(async (req, res, next) => {
                 url: uploadResult.secure_url,
             };
         } catch (error) {
-            console.log("Upload error: ", error);
             return next(new ErrorHandler("Avatar upload failed", 500));
         }
     }

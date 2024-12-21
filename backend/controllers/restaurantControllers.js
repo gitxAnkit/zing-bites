@@ -48,7 +48,6 @@ export const getNearbyRestaurants = catchAsyncErrors(async (req, res, next) => {
     if (!user || !user.defaultAddress) {
         return next(new ErrorHandler("Default address not set for the user", 400));
     }
-    console.log(user.defaultAddress);
     const { coordinates } = user.defaultAddress.location;
     const maxDistanceInMeters = 5000; // Set the radius, e.g., 5 km
 
