@@ -20,14 +20,14 @@ const NavBar = () => {
   return (
     <>
       <div className="flex justify-around items-center p-8">
-        <h1 className="text-5xl font-black text-white cursor-pointer">
+        <h1 className="z-10 text-5xl font-black text-white cursor-pointer font-montserrat drop-shadow-2xl">
           Zing Bites
         </h1>
         <div
-          className="text-lg cursor-pointer"
+          className="text-lg cursor-pointer z-10"
           onClick={handleClick} // This will toggle the popup on click
         >
-          <AccountCircleOutlined sx={{ fontSize: 50, color: "gray" }} />
+          <AccountCircleOutlined sx={{ fontSize: 50, color: "white" }} />
         </div>
       </div>
 
