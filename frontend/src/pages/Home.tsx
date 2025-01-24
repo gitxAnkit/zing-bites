@@ -4,6 +4,7 @@ import ErrorBoundary from "../app/ErrorBoundary";
 import { LocationOn, Search } from "@mui/icons-material";
 import FoodCard from "../components/FoodCard";
 import RestaurantCard from "../components/RestaurantCard";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -53,9 +54,11 @@ const Home = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none 
                   focus:ring-2 focus:ring-blue-500"
                 />
-                <button className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors">
-                  <Search />
-                </button>
+                <Link to="/search">
+                  <button className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors">
+                    <Search />
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -80,7 +83,7 @@ const Home = () => {
               <FoodCard />
             </div>
           </div>
-          <div className="p-3">
+          <div className="p-5">
             <h1 className="text-2xl font-semibold">Top Rated Restaurants</h1>
             {/* A horizontal scroll for top-rated food */}
             <div className="flex gap-2 overflow-x-auto scroll-smooth scrollbar-hide">
