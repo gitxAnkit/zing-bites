@@ -19,8 +19,8 @@ const Search = () => {
             Dishes
           </button>
         </div>
-        <div className="bg-gray-200 w-[70%] h-[80%] p-4 rounded-lg shadow-lg overflow-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-2">
+        <div className="bg-gray-200 w-[50%] md:w-[70%] lg:w-[80%] xl:w-[65%]  h-[90%] p-4 rounded-lg shadow-lg overflow-auto">
+          <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3  gap-2 items-center justify-center">
             <FoodCard />
             <FoodCard />
             <FoodCard />
@@ -33,8 +33,6 @@ const Search = () => {
             <FoodCard />
             <FoodCard />
             <FoodCard />
-
-
           </div>
         </div>
       </div>

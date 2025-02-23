@@ -20,7 +20,7 @@ const FoodCard = () => {
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-green-500">$12.99</span>
           <button className="bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-600 transition">
-            Add to Cart
+            Add to Basket 
           </button>
         </div>
       </div>

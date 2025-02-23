@@ -64,7 +64,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="h-screen p-2">
+        <div className="min-h-screen p-2">
           <div className="p-3">
             <h1 className="text-2xl font-semibold">Best Food Options</h1>
             {/* A horizontal scroll for top-rated food */}
